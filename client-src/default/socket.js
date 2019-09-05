@@ -1,24 +1,40 @@
 'use strict';
 
-const SockJS = require('sockjs-client/dist/sockjs');
+/* global __webpack_dev_server_client__ */
+/* eslint-disable
+  camelcase
+*/
+
+// this SockJSClient is here as a default fallback, in case inline mode
+// is off or the client is not injected. This will be switched to
+// WebsocketClient when it becomes the default
+
+// important: the path to SockJSClient here is made to work in the 'client'
+// directory, but is updated via the webpack compilation when compiled from
+// the 'client-src' directory
+const Client =
+  typeof __webpack_dev_server_client__ !== 'undefined'
+    ? __webpack_dev_server_client__
+    : // eslint-disable-next-line import/no-unresolved
+      require('./clients/SockJSClient');
 
 let retries = 0;
-let sock = null;
+let client = null;
 
 const socket = function initSocket(url, handlers) {
-  sock = new SockJS(url);
+  client = new Client(url);
 
-  sock.onopen = function onopen() {
+  client.onOpen(() => {
     retries = 0;
-  };
+  });
 
-  sock.onclose = function onclose() {
+  client.onClose(() => {
     if (retries === 0) {
       handlers.close();
     }
 
     // Try to reconnect.
-    sock = null;
+    client = null;
 
     // After 10 retries stop trying, to prevent logspam.
     if (retries <= 10) {
@@ -32,15 +48,14 @@ const socket = function initSocket(url, handlers) {
         socket(url, handlers);
       }, retryInMs);
     }
-  };
+  });
 
-  sock.onmessage = function onmessage(e) {
-    // This assumes that all data sent via the websocket is JSON.
-    const msg = JSON.parse(e.data);
+  client.onMessage((data) => {
+    const msg = JSON.parse(data);
     if (handlers[msg.type]) {
       handlers[msg.type](msg.data);
     }
-  };
+  });
 };
 
 module.exports = socket;

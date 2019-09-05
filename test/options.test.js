@@ -6,9 +6,22 @@ const webpack = require('webpack');
 const { createFsFromVolume, Volume } = require('memfs');
 const Server = require('../lib/Server');
 const options = require('../lib/options.json');
+const SockJSServer = require('../lib/servers/SockJSServer');
 const config = require('./fixtures/simple-config/webpack.config');
 
 describe('options', () => {
+  jest.setTimeout(20000);
+
+  let consoleMock;
+
+  beforeAll(() => {
+    consoleMock = jest.spyOn(console, 'warn').mockImplementation();
+  });
+
+  afterAll(() => {
+    consoleMock.mockRestore();
+  });
+
   it('should match properties and errorMessage', () => {
     const properties = Object.keys(options.properties);
     const messages = Object.keys(options.errorMessage.properties);
@@ -48,7 +61,7 @@ describe('options', () => {
           .then(() => {
             const opts =
               Object.prototype.toString.call(value) === '[object Object]' &&
-              Object.keys(value) !== 0
+              Object.keys(value).length !== 0
                 ? value
                 : {
                     [propertyName]: value,
@@ -57,7 +70,7 @@ describe('options', () => {
             server = new Server(compiler, opts);
           })
           .then(() => {
-            if (current <= successCount) {
+            if (current < successCount) {
               expect(true).toBeTruthy();
             } else {
               expect(false).toBeTruthy();
@@ -120,8 +133,19 @@ describe('options', () => {
         failure: [false],
       },
       clientLogLevel: {
-        success: ['silent', 'info', 'error', 'warn', 'trace', 'debug'],
-        failure: ['whoops!', 'none', 'warning'],
+        success: [
+          'silent',
+          'info',
+          'error',
+          'warn',
+          'trace',
+          'debug',
+          // deprecated
+          'none',
+          // deprecated
+          'warning',
+        ],
+        failure: ['whoops!'],
       },
       compress: {
         success: [true],
@@ -233,6 +257,10 @@ describe('options', () => {
         success: [true],
         failure: [''],
       },
+      onListening: {
+        success: [() => {}],
+        failure: [''],
+      },
       open: {
         success: [true, ''],
         failure: [{}],
@@ -287,6 +315,10 @@ describe('options', () => {
         success: ['', 0, null],
         failure: [false],
       },
+      profile: {
+        success: [false],
+        failure: [''],
+      },
       progress: {
         success: [false],
         failure: [''],
@@ -337,6 +369,10 @@ describe('options', () => {
         success: [''],
         failure: [false],
       },
+      sockHost: {
+        success: [''],
+        failure: [false],
+      },
       sockPath: {
         success: [''],
         failure: [false],
@@ -355,11 +391,68 @@ describe('options', () => {
           {},
           'none',
           'errors-only',
+          'errors-warnings',
           'minimal',
           'normal',
           'verbose',
         ],
-        failure: [false, 'whoops!', null],
+        failure: ['whoops!', null],
+      },
+      transportMode: {
+        success: [
+          'ws',
+          'sockjs',
+          {
+            transportMode: {
+              server: 'sockjs',
+            },
+          },
+          {
+            transportMode: {
+              server: require.resolve('../lib/servers/SockJSServer'),
+            },
+          },
+          {
+            transportMode: {
+              server: SockJSServer,
+            },
+          },
+          {
+            transportMode: {
+              client: 'sockjs',
+            },
+          },
+          {
+            transportMode: {
+              client: require.resolve('../client/clients/SockJSClient'),
+            },
+          },
+          {
+            transportMode: {
+              server: SockJSServer,
+              client: require.resolve('../client/clients/SockJSClient'),
+            },
+          },
+        ],
+        failure: [
+          'nonexistent-implementation',
+          null,
+          {
+            transportMode: {
+              notAnOption: true,
+            },
+          },
+          {
+            transportMode: {
+              server: false,
+            },
+          },
+          {
+            transportMode: {
+              client: () => {},
+            },
+          },
+        ],
       },
       useLocalIp: {
         success: [false],

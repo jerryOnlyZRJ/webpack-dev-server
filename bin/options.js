@@ -1,7 +1,6 @@
 'use strict';
 
 /* eslint-disable
-  global-require,
   multiline-ternary,
   space-before-function-paren
 */
@@ -21,6 +20,11 @@ const options = {
     type: 'boolean',
     describe: 'Lazy',
   },
+  liveReload: {
+    type: 'boolean',
+    describe: 'Enables/Disables live reloading on changing files',
+    default: true,
+  },
   serveIndex: {
     type: 'boolean',
     describe: 'Enables/Disables serveIndex middleware',
@@ -31,6 +35,10 @@ const options = {
     default: true,
     describe:
       'Inline mode (set to false to disable including client scripts like livereload)',
+  },
+  profile: {
+    type: 'boolean',
+    describe: 'Print compilation profile data for progress steps',
   },
   progress: {
     type: 'boolean',

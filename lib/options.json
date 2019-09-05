@@ -37,7 +37,16 @@
       ]
     },
     "clientLogLevel": {
-      "enum": ["info", "warn", "error", "debug", "trace", "silent"]
+      "enum": [
+        "info",
+        "warn",
+        "error",
+        "debug",
+        "trace",
+        "silent",
+        "none",
+        "warning"
+      ]
     },
     "compress": {
       "type": "boolean"
@@ -168,6 +177,9 @@
     "lazy": {
       "type": "boolean"
     },
+    "liveReload": {
+      "type": "boolean"
+    },
     "log": {
       "instanceof": "Function"
     },
@@ -182,6 +194,9 @@
     },
     "noInfo": {
       "type": "boolean"
+    },
+    "onListening": {
+      "instanceof": "Function"
     },
     "open": {
       "anyOf": [
@@ -240,6 +255,9 @@
         }
       ]
     },
+    "profile": {
+      "type": "boolean"
+    },
     "progress": {
       "type": "boolean"
     },
@@ -288,6 +306,9 @@
     "setup": {
       "instanceof": "Function"
     },
+    "sockHost": {
+      "type": "string"
+    },
     "sockPath": {
       "type": "string"
     },
@@ -319,7 +340,40 @@
           "type": "boolean"
         },
         {
-          "enum": ["none", "errors-only", "minimal", "normal", "verbose"]
+          "enum": [
+            "none",
+            "errors-only",
+            "errors-warnings",
+            "minimal",
+            "normal",
+            "verbose"
+          ]
+        }
+      ]
+    },
+    "transportMode": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "client": {
+              "type": "string"
+            },
+            "server": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "instanceof": "Function"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "enum": ["sockjs", "ws"]
         }
       ]
     },
@@ -354,7 +408,7 @@
       "bonjour": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverbonjour)",
       "ca": "should be {String|Buffer}",
       "cert": "should be {String|Buffer}",
-      "clientLogLevel": "should be {String} and equal to one of the allowed values\n\n [ 'info', 'warn', 'error', 'debug', 'trace', 'silent' ]\n\n (https://webpack.js.org/configuration/dev-server/#devserverclientloglevel)",
+      "clientLogLevel": "should be {String} and equal to one of the allowed values\n\n [ 'none', 'silent', 'info', 'debug', 'trace', 'error', 'warning', 'warn' ]\n\n (https://webpack.js.org/configuration/dev-server/#devserverclientloglevel)",
       "compress": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devservercompress)",
       "contentBase": "should be {Number|String|Array} (https://webpack.js.org/configuration/dev-server/#devservercontentbase)",
       "disableHostCheck": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverdisablehostcheck)",
@@ -369,22 +423,25 @@
       "http2": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverhttp2)",
       "https": "should be {Object|Boolean} (https://webpack.js.org/configuration/dev-server/#devserverhttps)",
       "index": "should be {String} (https://webpack.js.org/configuration/dev-server/#devserverindex)",
-      "injectClient": "should be {Boolean|Function}",
-      "injectHot": "should be {Boolean|Function}",
+      "injectClient": "should be {Boolean|Function} (https://webpack.js.org/configuration/dev-server/#devserverinjectclient)",
+      "injectHot": "should be {Boolean|Function} (https://webpack.js.org/configuration/dev-server/#devserverinjecthot)",
       "inline": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverinline)",
       "key": "should be {String|Buffer}",
       "lazy": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverlazy-)",
+      "liveReload": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverlivereload-)",
       "log": "should be {Function}",
       "logLevel": "should be {String} and equal to one of the allowed values\n\n [ 'info', 'warn', 'error', 'debug', 'trace', 'silent' ]\n\n (https://github.com/webpack/webpack-dev-middleware#loglevel)",
       "logTime": "should be {Boolean} (https://github.com/webpack/webpack-dev-middleware#logtime)",
       "mimeTypes": "should be {Object} (https://webpack.js.org/configuration/dev-server/#devservermimetypes-)",
       "noInfo": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devservernoinfo-)",
+      "onListening": "should be {Function} (https://webpack.js.org/configuration/dev-server/#onlistening)",
       "open": "should be {String|Boolean} (https://webpack.js.org/configuration/dev-server/#devserveropen)",
       "openPage": "should be {String} (https://webpack.js.org/configuration/dev-server/#devserveropenpage)",
       "overlay": "should be {Boolean|Object} (https://webpack.js.org/configuration/dev-server/#devserveroverlay)",
       "pfx": "should be {String|Buffer} (https://webpack.js.org/configuration/dev-server/#devserverpfx)",
       "pfxPassphrase": "should be {String} (https://webpack.js.org/configuration/dev-server/#devserverpfxpassphrase)",
       "port": "should be {Number|String|Null} (https://webpack.js.org/configuration/dev-server/#devserverport)",
+      "profile": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverprofile)",
       "progress": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverprogress---cli-only)",
       "proxy": "should be {Object|Array} (https://webpack.js.org/configuration/dev-server/#devserverproxy)",
       "public": "should be {String} (https://webpack.js.org/configuration/dev-server/#devserverpublic)",
@@ -395,11 +452,13 @@
       "serveIndex": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverserveindex)",
       "serverSideRender": "should be {Boolean} (https://github.com/webpack/webpack-dev-middleware#serversiderender)",
       "setup": "should be {Function} (https://webpack.js.org/configuration/dev-server/#devserversetup)",
+      "sockHost": "should be {String|Null} (https://webpack.js.org/configuration/dev-server/#devserversockhost)",
       "sockPath": "should be {String} (https://webpack.js.org/configuration/dev-server/#devserversockpath)",
-      "sockPort": "should be {Number|String|Null}",
+      "sockPort": "should be {Number|String|Null} (https://webpack.js.org/configuration/dev-server/#devserversockport)",
       "socket": "should be {String} (https://webpack.js.org/configuration/dev-server/#devserversocket)",
       "staticOptions": "should be {Object} (https://webpack.js.org/configuration/dev-server/#devserverstaticoptions)",
       "stats": "should be {Object|Boolean} (https://webpack.js.org/configuration/dev-server/#devserverstats-)",
+      "transportMode": "should be {String|Object} (https://webpack.js.org/configuration/dev-server/#devservertransportmode)",
       "useLocalIp": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserveruselocalip)",
       "warn": "should be {Function}",
       "watchContentBase": "should be {Boolean} (https://webpack.js.org/configuration/dev-server/#devserverwatchcontentbase)",

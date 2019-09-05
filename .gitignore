@@ -3,10 +3,16 @@
 npm-debug.log
 
 .idea
-.nyc_output
 
 client
+!/test/client
 coverage
 ssl/*.pem
 node_modules
 .vscode
+
+.eslintcache
+
+test/fixtures/reload-config/main.css
+test/fixtures/reload-config-2/main.css
+!/test/fixtures/contentbase-config/public/node_modules

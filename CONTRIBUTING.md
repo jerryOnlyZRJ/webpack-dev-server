@@ -39,22 +39,28 @@ Pull requests often need some real-world testing.
 
 1. In your `package.json`, change the line with `webpack-dev-server` to:
 
-  ```json
-  "webpack-dev-server": "<PATH>"
-  ```
+```json
+"webpack-dev-server": "<PATH>"
+```
 
-  `<PATH>`:
+`<PATH>`:
 
-  - `github:webpack/webpack-dev-server#pull/<ID>/head`
+- `github:webpack/webpack-dev-server#pull/<ID>/head`
   where `<ID>` is the ID of the pull request.
 
-  - `file:../path/to/local/webapck-dev-server/fork` is the path to your local repo, just make sure you hit the correct path
+- `file:../path/to/local/webapck-dev-server/fork` is the path to your local repo, just make sure you hit the correct path
 
 2. Run `npm install`.
 
 3. Go to the `webpack-dev-server` module (`cd node_modules/webpack-dev-server`), and run `npm run prepublish`.
 
 The pull request is now ready to be tested.
+
+## Contributor License Agreement
+
+When submitting your contribution, a CLA (Contributor License Agreement) bot will come by to verify that you signed the [CLA](https://cla.js.foundation/webpack/webpack-dev-server). If it is your first time, it will link you to the right place to sign it. However, if you have committed your contributions using an email that is not the same as your email used on GitHub, the CLA bot can't accept your contribution.
+
+Run `git config user.email` to see your Git email, and verify it with [your GitHub email](https://github.com/settings/emails).
 
 ---
 
